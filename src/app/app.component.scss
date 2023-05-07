@@ -1,0 +1,42 @@
+a {
+    text-decoration: none;
+    color: white;
+}
+
+a:hover, a:active{
+    color: lightgray;
+}
+
+.navigation-items{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    
+
+}
+
+@media only screen and (max-width: 1026px) {
+    .navigation-items {
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 1026px) {
+    #nav-icon {
+        display: none;
+    }
+}
+
+.navigation-items li{
+    margin: 5px;
+}
+.naviagtion-div{
+   margin-left: auto;
+}
+
+mat-sidenav{
+    width: 30%;
+}
