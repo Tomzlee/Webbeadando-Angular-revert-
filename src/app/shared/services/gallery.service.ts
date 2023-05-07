@@ -3,6 +3,9 @@ import {HttpClient} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Image } from '../models/Image';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
+
 
 
 @Injectable({
@@ -12,18 +15,26 @@ export class GalleryService {
 
   
   // HTTP
-  constructor(private http: HttpClient) { }
+
+  collectionName = 'Images';
+  constructor(private http: HttpClient,
+    private afs: AngularFirestore,
+    private storage: AngularFireStorage
+    ) { }
 
 
   loadImageMeta(metaUrl: string): Observable<Array<Image>> {
     const url : string = environment.hostUrl;
-    return this.http.get(url + '/assets/' + metaUrl) as Observable<Array<Image>>;
+    //return this.http.get(url + '/assets/' + metaUrl) as Observable<Array<Image>>;
+    return this.afs.collection<Image>(this.collectionName).valueChanges();
   }
 
   loadImage(imageUrl: string) {
     const url : string = environment.hostUrl;
 
-    return this.http.get(url+ '/assets/' + imageUrl, {responseType: 'blob'});
+    //return this.http.get(url+ '/assets/' + imageUrl, {responseType: 'blob'});
+    return this.storage.ref(imageUrl).getDownloadURL();
+
   }
 
   //'http://localhost:4200'

@@ -51,10 +51,10 @@
 
             <mat-card-content>
                 <img class="galleryImage" [src]="loadedImage" />
-                <div>{{imageInput.user_name}}</div>
-                <!-- <div class="break"></div>
-                <div>{{imageInput.user_url}}</div>
+                <!--<div>{{imageInput.user_name}}</div>-->
                 <div class="break"></div>
+                <div>{{imageInput.user_url}}</div>
+                <!--<div class="break"></div>
                 <div>{{imageInput.photo_url}}</div> -->
             </mat-card-content>
         </span>
@@ -84,4 +84,20 @@
         </span>
 
     </mat-card>
+
+    <div *ngIf="comments.length">
+        <table>
+            <tr>
+                <th>User</th>
+                <th>Comment</th>
+                <th>Date</th>
+            </tr>
+            <tr *ngFor="let comment of comments; let i = index;"
+                [ngStyle]="{'background-color' : i % 2 === 0 ? 'darkcyan' : 'cyan'}">
+                <td>{{comment.username}}</td>
+                <td>{{comment.comment}}</td>
+                <td>{{comment.date | dateFormat}}</td>
+            </tr>
+        </table>
+    </div>
 </div>

@@ -3,7 +3,10 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Comment } from '../../../shared/models/Comment';
 import { Image } from '../../../shared/models/Image';
-import { GalleryService } from 'src/app/shared/services/gallery.service';
+import { GalleryService } from '../../../shared/services/gallery.service';
+import { CommentService } from '../../../shared/services/comment.service';
+import { UserService } from '../../../shared/services/user.service';
+import { User } from '../../../shared/models/User';
 
 @Component({
   selector: 'app-viewer',
@@ -14,34 +17,57 @@ export class ViewerComponent implements OnInit,OnChanges {
 
   @Input() imageInput?: Image;
   loadedImage?: string;
+  user?: User
 
   // commentObject: any = {};
   comments: Array<Comment> = [];
 
   commentsForm = this.createForm({
+    id:'',
     username: '',
     comment: '',
-    date: new Date()
+    date: 0,
+    imageId: this.imageInput?.id
   });
 
-  constructor(private fb: FormBuilder, private router: Router,private galleryService: GalleryService) { }
+  constructor(private fb: FormBuilder,
+    private router: Router,
+    private galleryService: GalleryService,
+    private commentService: CommentService,
+    private userService: UserService
+    ) { }
 
 
   ngOnChanges():void{
     if(this.imageInput?.id){
-      this.galleryService.loadImage(this.imageInput?.id + '.jpg').subscribe((data =>{
-        let reader = new FileReader();
+      this.commentsForm.get('imageId')?.setValue(this.imageInput.id);
+      this.galleryService.loadImage(this.imageInput.image_url).subscribe((data =>{
+
+        this.loadedImage = data;
+
+        /*let reader = new FileReader();
         reader.readAsDataURL(data);
         reader.onloadend = () =>{
           this.loadedImage = reader.result as string;
-        }
+        }*/
       }));
 
+      this.commentService.getCommentsByImageId(this.imageInput.id).subscribe(comments =>{
+        this.comments = comments;
+      });
     }
   }
 
   ngOnInit(): void {
+    const user = JSON.parse(localStorage.getItem('user') as string) as firebase.default.User;
+    this.userService.getById(user.uid).subscribe(data => {
+      this.user = data;
+      this.commentsForm.get('username')?.setValue(this.user?.username as string);
+    }, error => {
+      console.error(error);
+    }
     
+    );
   }
 
   createForm(model: Comment) {
@@ -54,11 +80,17 @@ export class ViewerComponent implements OnInit,OnChanges {
   addComment() {
     if (this.commentsForm.valid) {
       if (this.commentsForm.get('username') && this.commentsForm.get('comment')) {
-        this.commentsForm.get('date')?.setValue(new Date());
+        this.commentsForm.get('date')?.setValue(new Date().getTime());
         
-        this.comments.push({ ...this.commentsForm.value } as Comment);
+        //this.comments.push({ ...this.commentsForm.value } as Comment);
+        //TODO insert
+        this.commentService.create(this.commentsForm.value as Comment).then(_ => {
+          this.router.navigateByUrl('/gallery/successful/' + this.commentsForm.get('username')?.value);
 
-        this.router.navigateByUrl('/gallery/successful/' + this.commentsForm.get('username')?.value);
+        }).catch(error => {
+          console.error(error);
+        });
+
       }
     }
   }
