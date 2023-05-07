@@ -1,6 +1,7 @@
 import { Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-signup',
@@ -16,12 +17,17 @@ export class SignupComponent {
     username: new FormControl('')
   });
 
-  constructor(private location: Location){
+  constructor(private location: Location, private authService: AuthService){
 
   };
 
   onSubmit(){
     console.log(this.signUpForm.value);
+    this.authService.signup(this.signUpForm.get('email')?.value as string, this.signUpForm.get('password')?.value as string).then(cred =>{
+      console.log(cred);
+    }).catch(error=>{
+      console.error(error);
+    });
   };
 
   goBack(){
